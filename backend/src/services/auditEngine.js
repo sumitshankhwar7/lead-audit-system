@@ -6,7 +6,8 @@ class AuditEngine {
       seo: 0,
       social: 0,
       ads: 0,
-      crm: 0
+      crm: 0,
+      marketing: 0
     };
 
     // Website Score (0-20)
@@ -54,7 +55,36 @@ class AuditEngine {
       scores.crm = 0;
     }
 
-    const totalScore = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) * 10) / 10;
+    // Marketing Score (0-20)
+    let marketingPoints = 0;
+    if (data.usingLinkedIn === 'yes') marketingPoints += 5;
+    if (data.usingWhatsApp === 'yes') marketingPoints += 5;
+    if (data.usingEmailMarketing === 'yes') marketingPoints += 5;
+    if (data.usingBusinessEmail === 'yes') marketingPoints += 5;
+    scores.marketing = marketingPoints;
+
+    // --- DEEP ANALYSIS PENALTIES (Critical Linkage) ---
+    // Penalty 1: Running Ads without a CRM (High Risk of Lead Leakage)
+    if (data.runningAds === 'yes' && data.usingCrm === 'no') {
+      scores.ads -= 5;
+    }
+
+    // Penalty 2: High Traffic but Poor Website Conversion / No CRM
+    if (parseInt(data.monthlyTraffic) > 5000 && (data.usingCrm === 'no' || data.leadTrackingMethod === 'manual')) {
+      scores.website -= 5;
+    }
+
+    // Penalty 3: Professional Website but Generic Email (Trust Issue)
+    if (data.hasWebsite === 'yes' && data.usingBusinessEmail === 'no') {
+      scores.marketing -= 2;
+    }
+
+    // Ensure no negative scores
+    Object.keys(scores).forEach(key => {
+      scores[key] = Math.max(0, scores[key]);
+    });
+
+    const totalScore = Math.round((Object.values(scores).reduce((a, b) => a + b, 0) / 120) * 100 * 10) / 10;
 
     let category = '';
     if (totalScore <= 30) category = 'Poor';

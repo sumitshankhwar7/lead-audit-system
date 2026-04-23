@@ -22,6 +22,25 @@ class ReportGenerator {
         painPoints: Array.isArray(businessInfo.painPoints) ? businessInfo.painPoints : []
       },
 
+      auditDetails: {
+        seo: {
+          hasKeywords: businessInfo.rankingKeywords || 'no',
+          hasVisibility: businessInfo.googleVisibility || 'no',
+          hasGmb: businessInfo.googleBusinessListing || 'no'
+        },
+        social: {
+          platforms: businessInfo.activePlatforms || [],
+          frequency: businessInfo.postingFrequency || 'none',
+          engagement: businessInfo.engagementLevel || 'none'
+        },
+        marketing: {
+          linkedin: businessInfo.usingLinkedIn || 'no',
+          whatsapp: businessInfo.usingWhatsApp || 'no',
+          email: businessInfo.usingEmailMarketing || 'no',
+          businessEmail: businessInfo.usingBusinessEmail || 'no'
+        }
+      },
+
       auditOverview: {
         totalScore: scores.total || 0,
         category: scores.category || 'Unknown',

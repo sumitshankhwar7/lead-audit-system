@@ -5,16 +5,30 @@ import SeoSection from '../components/Form/SeoSection';
 import SocialMediaSection from '../components/Form/SocialMediaSection';
 import PaidAdsSection from '../components/Form/PaidAdsSection';
 import CrmSection from '../components/Form/CrmSection';
+import MarketingSection from '../components/Form/MarketingSection';
 import BusinessGoals from '../components/Form/BusinessGoals';
 import PainPoints from '../components/Form/PainPoints';
 import Button from '../components/Common/Button';
 import { validateForm } from '../utils/validators';
-import { submitAudit } from '../services/api';
-
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Common/Modal';
+import LeadForm from '../components/Form/LeadForm';
+import { submitAudit, submitLead } from '../services/api';
 
 function HomePage() {
   const navigate = useNavigate();
+  const [showLeadModal, setShowLeadModal] = useState(() => {
+    const lastShown = localStorage.getItem('leadLastShown');
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    if (!lastShown || (now - parseInt(lastShown) > ONE_HOUR)) {
+      localStorage.setItem('leadLastShown', now.toString());
+      return true;
+    }
+    return false;
+  });
+  const [leadLoading, setLeadLoading] = useState(false);
   const [formData, setFormData] = useState({
     businessName: '',
     industry: '',
@@ -36,6 +50,10 @@ function HomePage() {
     usingCrm: '',
     crmName: '',
     leadTrackingMethod: '',
+    usingLinkedIn: '',
+    usingWhatsApp: '',
+    usingEmailMarketing: '',
+    usingBusinessEmail: '',
     monthlyRevenueTarget: '',
     requiredLeadsPerMonth: '',
     averageDealSize: '',
@@ -69,8 +87,31 @@ function HomePage() {
     }
   };
 
+  const handleLeadSubmit = async (leadData) => {
+    setLeadLoading(true);
+    try {
+      await submitLead(leadData);
+      localStorage.setItem('leadSubmitted', 'true');
+      localStorage.setItem('userLeadInfo', JSON.stringify(leadData));
+      // Pre-fill business name in the audit form
+      setFormData(prev => ({ ...prev, businessName: leadData.businessName }));
+      setShowLeadModal(false);
+    } catch (error) {
+      console.error('Lead Submission Error:', error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setLeadLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-premium py-12 px-4 sm:px-6 lg:px-8">
+      <Modal isOpen={showLeadModal} title="Start Your Digital Audit">
+        <p className="text-slate-500 mb-6 text-center">
+          Enter your details below to unlock your comprehensive digital presence analysis.
+        </p>
+        <LeadForm onSubmit={handleLeadSubmit} loading={leadLoading} />
+      </Modal>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 tracking-tight">
@@ -106,6 +147,10 @@ function HomePage() {
 
             <section className="glass-card p-8 rounded-3xl">
               <CrmSection data={formData} setData={setFormData} />
+            </section>
+
+            <section className="glass-card p-8 rounded-3xl">
+              <MarketingSection data={formData} setData={setFormData} />
             </section>
 
             <section className="glass-card p-8 rounded-3xl">

@@ -10,4 +10,9 @@ export const submitAudit = async (data) => {
   return res.data;
 };
 
+export const submitLead = async (data) => {
+  const res = await api.post('/leads', data);
+  return res.data;
+};
+
 export default api;

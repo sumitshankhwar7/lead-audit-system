@@ -305,6 +305,34 @@ exports.generate = async (reportData) => {
           </table>
         </div>
 
+        <div class="section-title">Deep Strategic Insights</div>
+        <div style="margin-bottom: 30px;">
+          ${(reportData.auditOverview.totalScore < 50 && reportData.auditDetails.seo.hasGmb === 'no') ? `
+            <div class="gap-item critical">
+              <div class="gap-title">CRITICAL INFRASTRUCTURE GAP</div>
+              <div class="gap-desc">Your foundational digital presence is weak. Prioritize setting up a Google Business Profile and optimizing your core website to stop losing local customers immediately.</div>
+            </div>
+          ` : ''}
+          ${(reportData.auditDetails.marketing.linkedin === 'no' && reportData.businessSummary.type === 'B2B') ? `
+            <div class="gap-item">
+              <div class="gap-title">B2B AUTHORITY RISK</div>
+              <div class="gap-desc">As a B2B business, your lack of LinkedIn presence is a major trust barrier. Professional decision-makers expect to see active thought leadership on LinkedIn before engaging.</div>
+            </div>
+          ` : ''}
+          ${(reportData.auditDetails.marketing.businessEmail === 'no') ? `
+            <div class="gap-item critical">
+              <div class="gap-title">BRAND TRUST DEFICIT</div>
+              <div class="gap-desc">Using a generic email address (Gmail/Yahoo) for business communication lowers your perceived professionalism. Switching to a business email can increase email response rates by 40%.</div>
+            </div>
+          ` : ''}
+          ${(reportData.auditOverview.breakdown.ads > 0 && reportData.auditOverview.breakdown.crm === 0) ? `
+            <div class="gap-item critical">
+              <div class="gap-title">RESOURCE LEAKAGE DETECTED</div>
+              <div class="gap-desc">You are running paid ads without a CRM. This leads to lead mismanagement and prevents you from tracking the true ROI of your marketing spend.</div>
+            </div>
+          ` : ''}
+        </div>
+
         <div class="section-title">Business Overview</div>
         <table class="summary-table">
           <tr><td class="label">Company Name</td><td>${reportData.businessSummary.name}</td></tr>
@@ -331,6 +359,34 @@ exports.generate = async (reportData) => {
         <div class="page-break"></div>
 
         <!-- PAGE 2 -->
+        <div class="section-title">Critical Factor: Google Business Listing</div>
+        <div class="gap-item ${reportData.auditDetails.seo.hasGmb === 'yes' ? '' : 'critical'}">
+          <div class="gap-title">Google Business Profile Status: ${reportData.auditDetails.seo.hasGmb === 'yes' ? 'OPTIMIZED' : 'NOT FOUND / UNOPTIMIZED'}</div>
+          <div class="gap-desc">
+            ${reportData.auditDetails.seo.hasGmb === 'yes' 
+              ? 'Your Google Business Profile is active, which is great for local visibility. However, continuous optimization with weekly posts and review management is recommended to maintain top rankings.' 
+              : 'CRITICAL: Your business is missing from local search results. A Google Business Profile is the #1 factor for local lead generation. Without it, you are losing 70% of potential local customers.'}
+          </div>
+        </div>
+
+        <div style="margin-top: 30px;"></div>
+        <div class="section-title">Social Media Presence Analysis</div>
+        <table class="summary-table">
+          <tr><td class="label">Active Platforms</td><td>${reportData.auditDetails.social.platforms.length > 0 ? reportData.auditDetails.social.platforms.join(', ') : 'None'}</td></tr>
+          <tr><td class="label">Posting Frequency</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.social.frequency}</span></td></tr>
+          <tr><td class="label">Engagement Level</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.social.engagement}</span></td></tr>
+        </table>
+
+        <div style="margin-top: 30px;"></div>
+        <div class="section-title">Digital Marketing Analysis</div>
+        <table class="summary-table">
+          <tr><td class="label">LinkedIn (B2B)</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.marketing.linkedin === 'yes' ? 'Active' : 'Missing'}</span></td></tr>
+          <tr><td class="label">WhatsApp Marketing</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.marketing.whatsapp === 'yes' ? 'Active' : 'Missing'}</span></td></tr>
+          <tr><td class="label">Email Marketing</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.marketing.email === 'yes' ? 'Active' : 'Missing'}</span></td></tr>
+          <tr><td class="label">Business Email</td><td><span style="text-transform: capitalize;">${reportData.auditDetails.marketing.businessEmail === 'yes' ? 'Verified' : 'Generic Email Used'}</span></td></tr>
+        </table>
+
+        <div style="margin-top: 30px;"></div>
         <div class="section-title">Gap Analysis & Risk Assessment</div>
         <div>
           ${reportData.gapAnalysis && Array.isArray(reportData.gapAnalysis) && reportData.gapAnalysis.length > 0 ? reportData.gapAnalysis.map(gap => `

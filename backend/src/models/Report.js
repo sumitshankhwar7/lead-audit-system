@@ -16,6 +16,24 @@ const reportSchema = new mongoose.Schema({
     },
     painPoints: [{ type: String }]
   },
+  auditDetails: {
+    seo: {
+      hasKeywords: { type: String },
+      hasVisibility: { type: String },
+      hasGmb: { type: String }
+    },
+    social: {
+      platforms: [{ type: String }],
+      frequency: { type: String },
+      engagement: { type: String }
+    },
+    marketing: {
+      linkedin: { type: String },
+      whatsapp: { type: String },
+      email: { type: String },
+      businessEmail: { type: String }
+    }
+  },
   auditOverview: {
     totalScore: { type: Number },
     category: { type: String },

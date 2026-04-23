@@ -63,6 +63,18 @@ class RevenueCalculator {
       leads += 15;
     }
 
+    if (data.usingLinkedIn === 'yes') {
+      leads += 10;
+    }
+
+    if (data.usingWhatsApp === 'yes') {
+      leads += 8;
+    }
+
+    if (data.usingEmailMarketing === 'yes') {
+      leads += 12;
+    }
+
     return Math.max(leads, 5); // Minimum 5 leads
   }
 }
