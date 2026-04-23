@@ -315,7 +315,7 @@ exports.generate = async (reportData) => {
 
         <div class="section-title">Key Performance Indicators</div>
         <div style="width: 100%;">
-          ${Object.entries(reportData.auditOverview.breakdown).map(([key, val], index) => `
+          ${reportData.auditOverview.breakdown && Object.keys(reportData.auditOverview.breakdown).length > 0 ? Object.entries(reportData.auditOverview.breakdown).map(([key, val], index) => `
             <div class="breakdown-item" style="${index % 2 === 0 ? 'margin-right: 4%;' : ''}">
               <div class="breakdown-info">
                 <span class="breakdown-name">${key.toUpperCase()}</span>
@@ -325,7 +325,7 @@ exports.generate = async (reportData) => {
                 <div class="progress-fill" style="width: ${(val / 20) * 100}%;"></div>
               </div>
             </div>
-          `).join('')}
+          `).join('') : '<p style="color: #64748B; font-size: 13px;">No breakdown data available</p>'}
         </div>
 
         <div class="page-break"></div>
@@ -333,23 +333,23 @@ exports.generate = async (reportData) => {
         <!-- PAGE 2 -->
         <div class="section-title">Gap Analysis & Risk Assessment</div>
         <div>
-          ${reportData.gapAnalysis.map(gap => `
-            <div class="gap-item ${gap.severity.toLowerCase()}">
-              <div class="gap-title">${gap.area}</div>
-              <div class="gap-desc">${gap.impact}</div>
+          ${reportData.gapAnalysis && Array.isArray(reportData.gapAnalysis) && reportData.gapAnalysis.length > 0 ? reportData.gapAnalysis.map(gap => `
+            <div class="gap-item ${(gap.severity || '').toLowerCase()}">
+              <div class="gap-title">${gap.area || 'Unknown Area'}</div>
+              <div class="gap-desc">${gap.impact || 'No description'}</div>
             </div>
-          `).join('')}
+          `).join('') : '<p style="color: #64748B; font-size: 13px;">No gaps identified in your digital presence.</p>'}
         </div>
 
         <div style="margin-top: 30px;"></div>
         <div class="section-title">Strategic Recommendations</div>
         <div>
-          ${[...(reportData.recommendations.high || []), ...(reportData.recommendations.medium || []), ...(reportData.recommendations.low || [])].slice(0, 8).map(reco => `
-            <div class="reco-card ${reco.priority.toLowerCase()}">
-              <div class="reco-title">${reco.service}</div>
-              <div class="reco-desc">${reco.description}</div>
+          ${(reportData.recommendations && (reportData.recommendations.high || reportData.recommendations.medium || reportData.recommendations.low)) ? [...(reportData.recommendations.high || []), ...(reportData.recommendations.medium || []), ...(reportData.recommendations.low || [])].filter(r => r).slice(0, 8).map(reco => `
+            <div class="reco-card ${(reco.priority || 'medium').toLowerCase()}">
+              <div class="reco-title">${reco.service || 'Recommendation'}</div>
+              <div class="reco-desc">${reco.description || 'No description available'}</div>
             </div>
-          `).join('')}
+          `).join('') : '<p style="color: #64748B; font-size: 13px;">No recommendations generated for your business.</p>'}
         </div>
 
         <div class="page-break"></div>
@@ -361,11 +361,11 @@ exports.generate = async (reportData) => {
             <tr>
               <td width="60%">
                 <div style="font-size: 11px; opacity: 0.9; margin-bottom: 5px; font-weight: 700; letter-spacing: 1px;">ESTIMATED ANNUAL REVENUE GAP</div>
-                <div class="revenue-val">₹${reportData.revenueOpportunity.revenueGap}</div>
+                <div class="revenue-val">${reportData.revenueOpportunity && reportData.revenueOpportunity.revenueGap ? reportData.revenueOpportunity.revenueGap : '₹0'}</div>
               </td>
               <td width="40%" align="right">
-                <div style="font-size: 12px; margin-bottom: 5px;">Expected ROI: <span style="color: #10B981; font-weight: 800;">${reportData.revenueOpportunity.roi}</span></div>
-                <div style="font-size: 12px;">Lead Gap: <span style="font-weight: 800;">${reportData.revenueOpportunity.leadGap} Leads</span></div>
+                <div style="font-size: 12px; margin-bottom: 5px;">Expected ROI: <span style="color: #10B981; font-weight: 800;">${reportData.revenueOpportunity && reportData.revenueOpportunity.roi ? reportData.revenueOpportunity.roi : 'N/A'}</span></div>
+                <div style="font-size: 12px;">Lead Gap: <span style="font-weight: 800;">${reportData.revenueOpportunity && reportData.revenueOpportunity.leadGap ? reportData.revenueOpportunity.leadGap : 0} Leads</span></div>
               </td>
             </tr>
           </table>
@@ -376,22 +376,22 @@ exports.generate = async (reportData) => {
         <div>
           <div class="timeline-item">
             <div class="timeline-title phase1">PHASE 1: IMMEDIATE WINS (0-3 Months)</div>
-            ${reportData.growthPlan.shortTerm.map(item => `<div class="timeline-desc">• ${item.service}</div>`).join('')}
+            ${reportData.growthPlan && reportData.growthPlan.shortTerm && Array.isArray(reportData.growthPlan.shortTerm) && reportData.growthPlan.shortTerm.length > 0 ? reportData.growthPlan.shortTerm.map(item => `<div class="timeline-desc">• ${item.service || 'Action item'}</div>`).join('') : '<div class="timeline-desc" style="color: #9CA3AF;">No immediate actions at this time</div>'}
           </div>
           <div class="timeline-item">
             <div class="timeline-title phase2">PHASE 2: SCALING & EXPANSION (3-6 Months)</div>
-            ${reportData.growthPlan.midTerm.map(item => `<div class="timeline-desc">• ${item.service}</div>`).join('')}
+            ${reportData.growthPlan && reportData.growthPlan.midTerm && Array.isArray(reportData.growthPlan.midTerm) && reportData.growthPlan.midTerm.length > 0 ? reportData.growthPlan.midTerm.map(item => `<div class="timeline-desc">• ${item.service || 'Action item'}</div>`).join('') : '<div class="timeline-desc" style="color: #9CA3AF;">No mid-term actions at this time</div>'}
           </div>
           <div class="timeline-item">
             <div class="timeline-title phase3">PHASE 3: LONG-TERM OPTIMIZATION (6-12 Months)</div>
-            ${reportData.growthPlan.longTerm.map(item => `<div class="timeline-desc">• ${item.service}</div>`).join('')}
+            ${reportData.growthPlan && reportData.growthPlan.longTerm && Array.isArray(reportData.growthPlan.longTerm) && reportData.growthPlan.longTerm.length > 0 ? reportData.growthPlan.longTerm.map(item => `<div class="timeline-desc">• ${item.service || 'Action item'}</div>`).join('') : '<div class="timeline-desc" style="color: #9CA3AF;">No long-term actions at this time</div>'}
           </div>
         </div>
 
         <div style="margin-top: 30px;"></div>
         <div class="section-title">Immediate Next Steps</div>
         <ul style="font-size: 13px; color: #64748B; padding-left: 20px;">
-          ${reportData.nextSteps.map(step => `<li style="margin-bottom: 5px;">${step}</li>`).join('')}
+          ${reportData.nextSteps && Array.isArray(reportData.nextSteps) && reportData.nextSteps.length > 0 ? reportData.nextSteps.map(step => `<li style="margin-bottom: 5px;">${step || 'Review recommendations'}</li>`).join('') : '<li style="margin-bottom: 5px; color: #9CA3AF;">Review the recommendations above to determine next steps</li>'}
         </ul>
       </body>
       </html>

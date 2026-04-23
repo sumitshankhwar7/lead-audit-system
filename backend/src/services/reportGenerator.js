@@ -2,6 +2,7 @@
 class ReportGenerator {
   generate(businessInfo, scores, recommendations, revenueData) {
     const now = new Date();
+    const safeRecommendations = Array.isArray(recommendations) ? recommendations : [];
 
     return {
       reportId: Date.now().toString(),
@@ -9,38 +10,38 @@ class ReportGenerator {
       generatedDate: now.toLocaleDateString(),
 
       businessSummary: {
-        name: businessInfo.businessName,
-        industry: businessInfo.industry,
-        type: businessInfo.businessType,
-        location: businessInfo.targetLocation,
+        name: businessInfo.businessName || 'Not specified',
+        industry: businessInfo.industry || 'Not specified',
+        type: businessInfo.businessType || 'Not specified',
+        location: businessInfo.targetLocation || 'Not specified',
         goals: {
-          revenueTarget: businessInfo.monthlyRevenueTarget,
-          requiredLeads: businessInfo.requiredLeadsPerMonth,
-          avgDealSize: businessInfo.averageDealSize
+          revenueTarget: businessInfo.monthlyRevenueTarget || 'Not specified',
+          requiredLeads: businessInfo.requiredLeadsPerMonth || 0,
+          avgDealSize: businessInfo.averageDealSize || 0
         },
-        painPoints: businessInfo.painPoints
+        painPoints: Array.isArray(businessInfo.painPoints) ? businessInfo.painPoints : []
       },
 
       auditOverview: {
-        totalScore: scores.total,
-        category: scores.category,
-        breakdown: scores.breakdown,
+        totalScore: scores.total || 0,
+        category: scores.category || 'Unknown',
+        breakdown: scores.breakdown || {},
         interpretation: this.getScoreInterpretation(scores.category)
       },
 
       gapAnalysis: this.generateGapAnalysis(businessInfo, scores),
 
       recommendations: {
-        high: recommendations.filter(r => r.priority === 'High'),
-        medium: recommendations.filter(r => r.priority === 'Medium'),
-        low: recommendations.filter(r => r.priority === 'Low')
+        high: safeRecommendations.filter(r => r && r.priority === 'High'),
+        medium: safeRecommendations.filter(r => r && r.priority === 'Medium'),
+        low: safeRecommendations.filter(r => r && r.priority === 'Low')
       },
 
-      growthPlan: this.generateGrowthPlan(recommendations),
+      growthPlan: this.generateGrowthPlan(safeRecommendations),
 
-      revenueOpportunity: revenueData,
+      revenueOpportunity: this.sanitizeRevenueData(revenueData),
 
-      nextSteps: this.generateNextSteps(recommendations)
+      nextSteps: this.generateNextSteps(safeRecommendations)
     };
   }
 
@@ -89,10 +90,25 @@ class ReportGenerator {
   }
 
   generateNextSteps(recommendations) {
+    if (!Array.isArray(recommendations) || recommendations.length === 0) {
+      return [];
+    }
     return recommendations
-      .filter(r => r.priority === 'High')
+      .filter(r => r && r.priority === 'High')
       .slice(0, 5)
-      .map(r => r.service);
+      .map(r => r.service || 'Action required')
+      .filter(step => step); // Remove empty strings
+  }
+
+  sanitizeRevenueData(revenueData) {
+    return {
+      currentLeads: revenueData?.currentLeads || 0,
+      targetLeads: revenueData?.targetLeads || 0,
+      leadGap: revenueData?.leadGap || 0,
+      revenueGap: revenueData?.revenueGap || '₹0',
+      channelSplit: revenueData?.channelSplit || { seo: 0, paidAds: 0, social: 0 },
+      roi: revenueData?.roi || 'N/A'
+    };
   }
 }
 
